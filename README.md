@@ -2,3 +2,6 @@
 
 > Status do projeto: Jesus eu to chornado aqui
 
+```
+  Necessário Node.js
+```
