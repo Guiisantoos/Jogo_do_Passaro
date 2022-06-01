@@ -1,7 +1,8 @@
-<h1> Lista de Receitas<h1/>
+<h1> Jogos para quando estiver de besteirinha<h1/>
 
-> Status do projeto: Jesus eu to chornado aqui
+> Status do projeto: Primeiros passos!! 🐣
 
 ```
-  Necessário Node.js
+  Necessário clonagem do repositório
+  
 ```
