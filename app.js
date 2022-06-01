@@ -6,54 +6,97 @@ sprites.src = 'Sprites.png'
 const canvas = document.querySelector('canvas')
 const ctx = canvas.getContext ('2d')
 
+
+
 const passaro = {
-    spritex: 114,
-    spritey: 328,
-    altura: 19,
-    largura: 14,
+    spritex: 0,
+    spritey: 0,
+    altura: 35,
+    largura: 25,
     x: 10,
     y: 50,
-    telax: 19,
-    telay: 14,
+    telax: 25,
+    telay: 20,
+    velocidade: 0,
+    gravidade: 0.20,
+
+    atualiza(){
+        passaro.velocidade = passaro.velocidade + passaro.gravidade;
+        passaro.y = passaro.y + passaro.velocidade;
+    },
+
     desenha(){
         ctx.drawImage (sprites, 
             passaro.spritex, passaro.spritey, 
             passaro.altura, passaro.largura, 
             passaro.x, passaro.y, 
             passaro.telax, passaro.telay)
+        
     }
 }
 const chao = {
-    spritex: 292,
-    spritey: 0,
-    altura: 170,
-    largura: 56,
+    spritex: 0,
+    spritey: 609,
+    altura: 224,
+    largura: 113,
     x: 0,
-    y: canvas.height - 56,
+    y: canvas.height - 113,
     desenha(){
         ctx.drawImage(sprites, 
             chao.spritex, chao.spritey, 
             chao.altura, chao.largura, 
             chao.x, chao.y,
-            chao.altura, chao.largura)
+            chao.altura, chao.largura);
+
+        ctx.drawImage(sprites, 
+            chao.spritex, chao.spritey, 
+            chao.altura, chao.largura, 
+            chao.x + chao.largura, chao.y,
+            chao.altura, chao.largura);
     }
 }
 const planoDeFundo ={
-    spritex: 0,
+    spritex: 390,
     spritey: 0,
-    altura: 145,
-    largura: 257,
-    x:0,
-    y:0,
+    largura: 275,
+    altura: 204,
+    x:-1,
+    y: canvas.height - 204,
 
     desenha(){
+        ctx.fillStyle = '#70c5ce';
+        ctx.fillRect (0,0, canvas.width, canvas.height);
         ctx.drawImage(
             sprites,
             planoDeFundo.spritex, planoDeFundo.spritey, 
-            planoDeFundo.altura, planoDeFundo.largura, 
+            planoDeFundo.largura, planoDeFundo.altura, 
             planoDeFundo.x, planoDeFundo.y, 
-            planoDeFundo.altura, planoDeFundo.largura
+            planoDeFundo.largura, planoDeFundo.altura
+        );
+        
+        ctx.drawImage(
+            sprites,
+            planoDeFundo.spritex, planoDeFundo.spritey, 
+            planoDeFundo.largura, planoDeFundo.altura, 
+            planoDeFundo.x + planoDeFundo.largura, planoDeFundo.y, 
+            planoDeFundo.largura, planoDeFundo.altura
         )
+    }
+}
+
+const mensagemComeço ={
+    spritex: 133,
+    spritey: 0,
+    altura:176,
+    largura: 152,
+    x: 75,
+    y: 100,
+
+    desenha(){
+        ctx.drawImage(sprites, 
+            mensagemComeço.spritex, mensagemComeço.spritey,
+            mensagemComeço.altura, mensagemComeço.largura,
+            mensagemComeço.x, mensagemComeço.y, mensagemComeço.altura, mensagemComeço.largura)
     }
 }
 
@@ -61,6 +104,8 @@ function loop (){
     planoDeFundo.desenha();
     chao.desenha();
     passaro.desenha();
+    mensagemComeço.desenha();
+    passaro.atualiza();
     requestAnimationFrame(loop);
 }
 
