@@ -1,5 +1,5 @@
-console.log ("Rodando a lsita em JS")
-
+//console.log ("Rodando a lsita em JS")
+let frames = 0;
 const som_HIT = new Audio();
 som_HIT.src = './sons/efeitos_hit.wav'
 
@@ -36,7 +36,7 @@ function criaPassaro(){
         },
         atualiza(){
     
-        if(bate(passaro, chao)){
+        if(bate(passaro, globais.chao)){    
             som_HIT.play();
 
             setTimeout(() => {
@@ -48,10 +48,23 @@ function criaPassaro(){
             passaro.velocidade = passaro.velocidade + passaro.gravidade;
             passaro.y = passaro.y + passaro.velocidade;
         },
-    
+        movimentos: [
+            {spritex: 0, spritey: 0,},
+            {spritex: 0, spritey: 26,},
+            {spritex: 0, spritey: 52,},
+        ],
+        frameAtual: 0,
+        atualizaFrameAtual(){
+            const inicioIncremento = 1;
+            const incremento = inicioIncremento + passaro.frameAtual;
+            const asaRepeticao = passaro.movimentos.length;
+            passaro.frameAtual = incremento % asaRepeticao;
+        },
         desenha(){
+            passaro.atualizaFrameAtual();
+            const{ spritex, spritey } = passaro.movimentos[passaro.frameAtual];
             ctx.drawImage (sprites, 
-                passaro.spritex, passaro.spritey, 
+                spritex, spritey, 
                 passaro.altura, passaro.largura, 
                 passaro.x, passaro.y, 
                 passaro.telax, passaro.telay)
@@ -61,27 +74,39 @@ function criaPassaro(){
 return passaro;
 }
 
-const chao = {
-    spritex: 0,
-    spritey: 610,
-    largura: 224,
-    altura: 112,
-    x: 0,
-    y: canvas.height - 96,
-    desenha(){
-        ctx.drawImage(sprites, 
-            chao.spritex, chao.spritey, 
-            chao.largura, chao.altura, 
-            chao.x, chao.y,
-            chao.largura, chao.altura);
-
-        ctx.drawImage(sprites, 
-            chao.spritex, chao.spritey, 
-            chao.altura, chao.largura, 
-            chao.x + chao.largura, chao.y,
-            chao.altura, chao.largura);
+function criaChao(){
+    const chao = {
+        spritex: 0,
+        spritey: 610,
+        largura: 224,
+        altura: 112,
+        x: 0,
+        y: canvas.height - 112,
+        atualiza(){
+            const movimentoDoChao = 1;
+            const repeteChao = chao.largura / 2;
+            const movimentaChao = chao.x - movimentoDoChao;
+            
+            chao.x = movimentaChao % repeteChao;
+        
+        },   
+        desenha(){
+            ctx.drawImage(sprites, 
+                chao.spritex, chao.spritey, 
+                chao.largura, chao.altura, 
+                chao.x, chao.y,
+                chao.largura, chao.altura);
+    
+            ctx.drawImage(sprites, 
+                chao.spritex, chao.spritey, 
+                chao.largura, chao.altura, 
+                (chao.x + chao.largura), chao.y,
+                chao.largura, chao.altura);
+        }
     }
+return chao;
 }
+
 const planoDeFundo ={
     spritex: 390,
     spritey: 0,
@@ -140,15 +165,17 @@ const Telas = {
     inicio: {
         inicializa(){
             globais.passaro = criaPassaro();
+            globais.chao = criaChao();
         },
         desenha(){
             planoDeFundo.desenha();
-            chao.desenha();
+            globais.chao.desenha();
             globais.passaro.desenha();
             mensagemComeço.desenha();
             
         },
         atualiza(){
+            globais.chao.atualiza();
         },
         click(){
             mudaDeTela(Telas.jogo)
@@ -159,7 +186,7 @@ const Telas = {
 Telas.jogo = {
     desenha(){
         planoDeFundo.desenha();
-        chao.desenha();
+        globais.chao.desenha();
         globais.passaro.desenha();
     },
 
@@ -175,6 +202,7 @@ function loop (){
 
     telaAtiva.desenha();
     telaAtiva.atualiza();
+    frames = frames + 1;
     requestAnimationFrame(loop);
 }
 
