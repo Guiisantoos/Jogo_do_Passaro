@@ -52,14 +52,22 @@ function criaPassaro(){
             {spritex: 0, spritey: 0,},
             {spritex: 0, spritey: 26,},
             {spritex: 0, spritey: 52,},
+            {spritex: 0, spritey: 26,}
         ],
         frameAtual: 0,
         atualizaFrameAtual(){
+            const intervaloDeFrames = 10;
+            const passouIntervalo = frames % intervaloDeFrames === 0;
+
+         if(passouIntervalo){
             const inicioIncremento = 1;
             const incremento = inicioIncremento + passaro.frameAtual;
             const asaRepeticao = passaro.movimentos.length;
             passaro.frameAtual = incremento % asaRepeticao;
-        },
+            }
+                
+            },
+
         desenha(){
             passaro.atualizaFrameAtual();
             const{ spritex, spritey } = passaro.movimentos[passaro.frameAtual];
@@ -105,6 +113,94 @@ function criaChao(){
         }
     }
 return chao;
+}
+
+function criaCano(){
+    const canos ={
+        largura: 52,
+        altura: 400,
+        chao: {
+            spriteX: 0,
+            spriteY: 169,
+        },
+        ceu:{
+            spriteX: 52,
+            spriteY: 169,
+        },
+        espaço: 80,
+        desenha(){            
+            canos.pares.forEach(function(par){
+                const espacamentoEntreCanos= 90;
+                const yRandom= par.y;
+                
+                const canoCeuX= par.x;
+                const canoCeuY= yRandom;
+                ctx.drawImage(
+                    sprites,
+                    canos.ceu.spriteX, canos.ceu.spriteY,
+                    canos.largura, canos.altura,
+                    canoCeuX, canoCeuY,
+                    canos.largura, canos.altura,
+                )
+    
+                const canoChaoX = par.x;
+                const canoChaoY = canos.altura + espacamentoEntreCanos + yRandom;
+                ctx.drawImage(
+                    sprites,
+                    canos.chao.spriteX, canos.chao.spriteY,
+                    canos.largura, canos.altura,
+                    canoChaoX, canoChaoY,
+                    canos.largura, canos.altura,
+                )
+
+                par.canoCeu = {
+                    x: canoCeuX,
+                    y: canos.altura + canoCeuY
+                }
+                par.canoChao = {
+                    x: canoChaoX,
+                    y: canoChaoY,
+                }
+            })          
+        },
+        bateNoPassaro(par) {
+            const cabecaDoPassaro = globais.passaro.y;
+            const peDoPassaro = globais.passaro.y + globais.passaro.altura;
+
+             if(globais.passaro.x >= par.x){
+                if(cabecaDoPassaro <= par.canoCeu.y){
+                    return true;
+                }
+                if(peDoPassaro >= par.canoChao.y){
+                    return true;
+                }
+             }
+                
+            return false;
+        },
+        pares:[],
+
+        atualiza(){
+            const passou100Frames = frames % 100 === 0
+            if(passou100Frames){
+                canos.pares.push({
+                        x: canvas.width,
+                        y: -150 * (Math.random() + 1),
+                    }
+                )
+            }
+            canos.pares.forEach(function(par){
+                par.x = par.x - 2;
+                if(canos.bateNoPassaro(par)){
+                    mudaDeTela(Telas.inicio);
+                }
+                if(par.x + canos.largura <= 0){
+                    canos.pares.shift();
+                }
+            })
+        }
+    }
+    return canos;
 }
 
 const planoDeFundo ={
@@ -166,13 +262,14 @@ const Telas = {
         inicializa(){
             globais.passaro = criaPassaro();
             globais.chao = criaChao();
+            globais.canos = criaCano();
         },
         desenha(){
             planoDeFundo.desenha();
-            globais.chao.desenha();
             globais.passaro.desenha();
             mensagemComeço.desenha();
-            
+            globais.canos.desenha();
+            globais.chao.desenha();
         },
         atualiza(){
             globais.chao.atualiza();
@@ -186,6 +283,7 @@ const Telas = {
 Telas.jogo = {
     desenha(){
         planoDeFundo.desenha();
+        globais.canos.desenha();
         globais.chao.desenha();
         globais.passaro.desenha();
     },
@@ -194,6 +292,8 @@ Telas.jogo = {
         globais.passaro.pula();
     },
     atualiza(){
+        globais.canos.atualiza();
+        globais.chao.atualiza();
         globais.passaro.atualiza();
     }
 }
